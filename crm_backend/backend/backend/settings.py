@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -85,10 +86,14 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+	"default": {
+		"ENGINE": "django.db.backends.postgresql",
+		"NAME": os.environ.get("POSTGRES_DB", "smartcrm"),
+		"USER": os.environ.get("POSTGRES_USER", "smartcrm"),
+		"PASSWORD": os.environ.get("POSTGRES_PASSWORD", "smartcrm"),
+		"HOST": os.environ.get("POSTGRES_HOST", "localhost"),
+		"PORT": os.environ.get("POSTGRES_PORT", "5432"),
+	}
 }
 
 
@@ -140,5 +145,8 @@ REST_FRAMEWORK = {
 	"DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend", "rest_framework.filters.SearchFilter", "rest_framework.filters.OrderingFilter"],
 }
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+
+CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://redis:6379/0")
+CELERY_RESULT_BACKEND = os.environ.get("REDIS_URL", "redis://redis:6379/0")
+
