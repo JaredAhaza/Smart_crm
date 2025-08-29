@@ -1,9 +1,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '../api'
+import Notes from '../components/Notes.vue'
 
 const leads = ref([])
 const form = ref({ id: null, name: '', status: 'new' })
+const selectedLead = ref(null)
 const statuses = ['new', 'contacted', 'qualified', 'lost']
 const loading = ref(false)
 const error = ref('')
@@ -50,6 +52,10 @@ const del = async (id) => {
   }
 }
 
+const selectLead = (lead) => {
+  selectedLead.value = lead
+}
+
 onMounted(load)
 </script>
 
@@ -82,6 +88,11 @@ onMounted(load)
 
         <p v-if="error" class="text-red-600 text-sm mt-3">{{ error }}</p>
       </div>
+
+      <!-- Notes section -->
+      <div v-if="selectedLead" class="mt-6">
+        <Notes :lead-id="selectedLead.id" />
+      </div>
     </div>
 
     <div class="lg:col-span-2">
@@ -105,9 +116,9 @@ onMounted(load)
               </tr>
             </thead>
             <tbody>
-              <tr v-for="l in leads" :key="l.id" class="border-t">
+              <tr v-for="l in leads" :key="l.id" class="border-t hover:bg-gray-50">
                 <td class="py-2">{{ l.id }}</td>
-                <td class="py-2 font-medium">{{ l.name }}</td>
+                <td class="py-2 font-medium cursor-pointer" @click="selectLead(l)">{{ l.name }}</td>
                 <td class="py-2">
                   <span
                     :class="{
