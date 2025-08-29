@@ -21,11 +21,13 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from leads.views import LeadViewSet
 from contacts.views import ContactViewSet
 from notes.views import NoteViewSet
+from reminders.views import ReminderViewSet
 
 router = routers.DefaultRouter()
 router.register(r"leads", LeadViewSet, basename="lead")
 router.register(r"contacts", ContactViewSet, basename="contact")
 router.register(r"notes", NoteViewSet, basename="note")
+router.register(r"reminders", ReminderViewSet, basename="reminder")
 
 urlpatterns = [
 	path("admin/", admin.site.urls),
