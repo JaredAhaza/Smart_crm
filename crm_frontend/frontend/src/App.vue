@@ -10,8 +10,10 @@ import HelloWorld from './components/HelloWorld.vue'
         <nav class="flex items-center gap-3 ml-6">
           <router-link to="/" class="text-sm hover:text-indigo-600">Leads</router-link>
           <router-link to="/contacts" class="text-sm hover:text-indigo-600">Contacts</router-link>
+          <router-link to="/audit" class="text-sm hover:text-indigo-600">Audit</router-link>
         </nav>
-        <div class="ml-auto">
+        <div class="ml-auto flex gap-2">
+          <router-link to="/register" class="text-sm text-indigo-600 hover:text-indigo-700 px-3 py-1.5">Register</router-link>
           <router-link to="/login" class="text-sm text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-md">Login</router-link>
         </div>
       </div>
