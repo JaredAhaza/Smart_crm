@@ -9,6 +9,7 @@ import HelloWorld from './components/HelloWorld.vue'
         <h1 class="text-xl font-semibold tracking-tight">Smart CRM</h1>
         <nav class="flex items-center gap-3 ml-6">
           <router-link to="/" class="text-sm hover:text-indigo-600">Leads</router-link>
+          <router-link to="/contacts" class="text-sm hover:text-indigo-600">Contacts</router-link>
         </nav>
         <div class="ml-auto">
           <router-link to="/login" class="text-sm text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-md">Login</router-link>
