@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'reminders',
     'correspondence',
     'audit',
+    'accounts',  # Add this line
 ]
 
 MIDDLEWARE = [

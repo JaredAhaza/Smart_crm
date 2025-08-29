@@ -24,6 +24,7 @@ from notes.views import NoteViewSet
 from reminders.views import ReminderViewSet
 from correspondence.views import CorrespondenceViewSet
 from audit.views import AuditLogViewSet
+from accounts.views import register_user
 
 router = routers.DefaultRouter()
 router.register(r"leads", LeadViewSet, basename="lead")
@@ -37,5 +38,6 @@ urlpatterns = [
 	path("admin/", admin.site.urls),
 	path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
 	path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+	path("api/register/", register_user, name="register_user"),
 	path("api/", include(router.urls)),
 ]
