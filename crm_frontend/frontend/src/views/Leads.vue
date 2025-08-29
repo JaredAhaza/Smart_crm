@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import api from '../api'
 import Notes from '../components/Notes.vue'
+import Reminders from '../components/Reminders.vue'
 
 const leads = ref([])
 const form = ref({ id: null, name: '', status: 'new' })
@@ -92,6 +93,11 @@ onMounted(load)
       <!-- Notes section -->
       <div v-if="selectedLead" class="mt-6">
         <Notes :lead-id="selectedLead.id" />
+      </div>
+
+      <!-- Reminders section -->
+      <div v-if="selectedLead" class="mt-6">
+        <Reminders :lead-id="selectedLead.id" />
       </div>
     </div>
 
