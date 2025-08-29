@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import api from '../api'
 import Notes from '../components/Notes.vue'
 import Reminders from '../components/Reminders.vue'
@@ -11,12 +11,28 @@ const statuses = ['new', 'contacted', 'qualified', 'lost']
 const loading = ref(false)
 const error = ref('')
 
+// Search and filter states
+const searchQuery = ref('')
+const statusFilter = ref('')
+const ownerFilter = ref('')
+const owners = ref([])
+
 const load = async () => {
   loading.value = true
   error.value = ''
   try {
-    const { data } = await api.get('/leads/')
+    // Build query parameters
+    const params = {}
+    if (searchQuery.value) params.search = searchQuery.value
+    if (statusFilter.value) params.status = statusFilter.value
+    if (ownerFilter.value) params.owner = ownerFilter.value
+    
+    const { data } = await api.get('/leads/', { params })
     leads.value = data
+    
+    // Extract unique owners for filter dropdown
+    const uniqueOwners = [...new Set(data.map(lead => lead.owner).filter(Boolean))]
+    owners.value = uniqueOwners
   } catch (e) {
     error.value = 'Failed to load leads. Are you logged in?'
   } finally {
@@ -55,6 +71,13 @@ const del = async (id) => {
 
 const selectLead = (lead) => {
   selectedLead.value = lead
+}
+
+const clearFilters = () => {
+  searchQuery.value = ''
+  statusFilter.value = ''
+  ownerFilter.value = ''
+  load()
 }
 
 onMounted(load)
@@ -103,12 +126,42 @@ onMounted(load)
 
     <div class="lg:col-span-2">
       <div class="bg-white border rounded-lg p-4 shadow-sm">
-        <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center justify-between mb-4">
           <h3 class="text-base font-semibold">Leads</h3>
           <span v-if="loading" class="text-sm text-gray-500">Loading…</span>
         </div>
 
-        <div v-if="!leads.length" class="text-gray-500 text-sm">No leads yet.</div>
+        <!-- Search and Filters -->
+        <div class="mb-4 space-y-3">
+          <!-- Search -->
+          <div>
+            <input v-model="searchQuery" placeholder="Search leads..."
+                   @input="load"
+                   class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200" />
+          </div>
+          
+          <!-- Filters -->
+          <div class="flex gap-2">
+            <select v-model="statusFilter" @change="load"
+                    class="border rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200">
+              <option value="">All Statuses</option>
+              <option v-for="s in statuses" :key="s" :value="s">{{ s }}</option>
+            </select>
+            
+            <select v-model="ownerFilter" @change="load"
+                    class="border rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200">
+              <option value="">All Owners</option>
+              <option v-for="owner in owners" :key="owner" :value="owner">{{ owner }}</option>
+            </select>
+            
+            <button @click="clearFilters"
+                    class="border border-gray-300 hover:bg-gray-50 rounded-md px-3 py-2 text-sm">
+              Clear
+            </button>
+          </div>
+        </div>
+
+        <div v-if="!leads.length" class="text-gray-500 text-sm">No leads found.</div>
 
         <div v-else class="overflow-x-auto">
           <table class="min-w-full text-sm">

@@ -9,6 +9,9 @@ const form = ref({ id: null, first_name: '', last_name: '', email: '', phone: ''
 const filterLead = ref('')
 const loading = ref(false)
 const error = ref('')
+
+// Search and filter states
+const searchQuery = ref('')
 const selectedContact = ref(null)
 
 const loadLeads = async () => {
@@ -19,12 +22,14 @@ const loadLeads = async () => {
 		// ignore
 	}
 }
-
 const loadContacts = async () => {
 	loading.value = true
 	error.value = ''
 	try {
-		const params = filterLead.value ? { lead: filterLead.value } : {}
+		const params = {}
+		if (filterLead.value) params.lead = filterLead.value
+		if (searchQuery.value) params.search = searchQuery.value
+		
 		const { data } = await api.get('/contacts/', { params })
 		contacts.value = data
 	} catch (e) {
@@ -33,7 +38,6 @@ const loadContacts = async () => {
 		loading.value = false
 	}
 }
-
 const resetForm = () => { form.value = { id: null, first_name: '', last_name: '', email: '', phone: '', lead: '' } }
 
 const save = async () => {
@@ -54,7 +58,6 @@ const save = async () => {
 		error.value = 'Save failed.'
 	}
 }
-
 const editItem = (c) => {
 	form.value = {
 		id: c.id,
@@ -65,7 +68,6 @@ const editItem = (c) => {
 		lead: c.lead,
 	}
 }
-
 const del = async (id) => {
 	if (!confirm('Delete contact?')) return
 	try {
@@ -80,7 +82,13 @@ const selectContact = (contact) => {
 	selectedContact.value = contact
 }
 
-watch(filterLead, loadContacts)
+const clearFilters = () => {
+	filterLead.value = ''
+	searchQuery.value = ''
+	loadContacts()
+}
+
+watch([filterLead, searchQuery], loadContacts)
 
 onMounted(async () => {
 	await loadLeads()
@@ -137,19 +145,35 @@ onMounted(async () => {
 
     <div class="lg:col-span-2">
       <div class="bg-white border rounded-lg p-4 shadow-sm">
-        <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center justify-between mb-4">
           <h3 class="text-base font-semibold">Contacts</h3>
-          <div class="flex items-center gap-2">
+          <span v-if="loading" class="text-sm text-gray-500">Loading…</span>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="mb-4 space-y-3">
+          <!-- Search -->
+          <div>
+            <input v-model="searchQuery" placeholder="Search contacts..."
+                   class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200" />
+          </div>
+          
+          <!-- Filters -->
+          <div class="flex gap-2">
             <select v-model="filterLead"
-                    class="border rounded-md px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                    class="border rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200">
               <option value="">All leads</option>
               <option v-for="l in leads" :key="l.id" :value="l.id">{{ l.name }}</option>
             </select>
-            <span v-if="loading" class="text-sm text-gray-500">Loading…</span>
+            
+            <button @click="clearFilters"
+                    class="border border-gray-300 hover:bg-gray-50 rounded-md px-3 py-2 text-sm">
+              Clear
+            </button>
           </div>
         </div>
 
-        <div v-if="!contacts.length" class="text-gray-500 text-sm">No contacts yet.</div>
+        <div v-if="!contacts.length" class="text-gray-500 text-sm">No contacts found.</div>
 
         <div v-else class="overflow-x-auto">
           <table class="min-w-full text-sm">
@@ -164,7 +188,7 @@ onMounted(async () => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="c in contacts" :key="c.id" class="border-t">
+              <tr v-for="c in contacts" :key="c.id" class="border-t hover:bg-gray-50">
                 <td class="py-2">{{ c.id }}</td>
                 <td class="py-2 font-medium cursor-pointer" @click="selectContact(c)">
                   {{ c.first_name }} {{ c.last_name }}
