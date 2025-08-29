@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import api from '../api'
+import Correspondence from '../components/Correspondence.vue'
 
 const leads = ref([])
 const contacts = ref([])
@@ -8,6 +9,7 @@ const form = ref({ id: null, first_name: '', last_name: '', email: '', phone: ''
 const filterLead = ref('')
 const loading = ref(false)
 const error = ref('')
+const selectedContact = ref(null)
 
 const loadLeads = async () => {
 	try {
@@ -74,6 +76,10 @@ const del = async (id) => {
 	}
 }
 
+const selectContact = (contact) => {
+	selectedContact.value = contact
+}
+
 watch(filterLead, loadContacts)
 
 onMounted(async () => {
@@ -122,6 +128,11 @@ onMounted(async () => {
 
         <p v-if="error" class="text-red-600 text-sm mt-3">{{ error }}</p>
       </div>
+
+      <!-- Correspondence section -->
+      <div v-if="selectedContact" class="mt-6">
+        <Correspondence :contact-id="selectedContact.id" />
+      </div>
     </div>
 
     <div class="lg:col-span-2">
@@ -155,7 +166,9 @@ onMounted(async () => {
             <tbody>
               <tr v-for="c in contacts" :key="c.id" class="border-t">
                 <td class="py-2">{{ c.id }}</td>
-                <td class="py-2 font-medium">{{ c.first_name }} {{ c.last_name }}</td>
+                <td class="py-2 font-medium cursor-pointer" @click="selectContact(c)">
+                  {{ c.first_name }} {{ c.last_name }}
+                </td>
                 <td class="py-2">{{ c.email || '-' }}</td>
                 <td class="py-2">{{ c.phone || '-' }}</td>
                 <td class="py-2">
